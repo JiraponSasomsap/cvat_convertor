@@ -88,7 +88,7 @@ class CVATCOCO2YOLO:
         self._cvat_reader(src, dst, self.BOUNDING_BOXES_OUTNAME, classes_select, labels_format="xywh")
         return self
     
-    def auto_split(self):
+    def auto_split(self, train=0.7, val=0.2, test=0.1):
         for src in tqdm(self.dst_res, desc="Splitting datasets"):
             dst = Path(f'split/{src.stem}')
-            auto_split(src, dst)
+            auto_split(src, dst, train, val, test)
