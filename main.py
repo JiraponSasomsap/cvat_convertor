@@ -5,3 +5,4 @@ ext = extract_zip_all('zip', 'unzip')
 if ext:
     yolo = CVATCOCO2YOLO()
     yolo.bounding_boxes('unzip', 'results')
+    yolo.auto_split()

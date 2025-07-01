@@ -1,3 +1,7 @@
 to_yolo
 __pycache__
 *.zip
+*.jpg
+*.txt
+*.yaml
+*.json

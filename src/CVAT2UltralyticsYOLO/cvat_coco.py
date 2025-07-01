@@ -6,6 +6,7 @@ from tqdm import tqdm
 from typing import List
 import numpy as np
 import yaml
+from ..utils import auto_split
 
 class CVATCOCO2YOLO:
     BOUNDING_BOXES_OUTNAME = 'yolo-bbox'
@@ -14,6 +15,7 @@ class CVATCOCO2YOLO:
         self._id = []
         self._cls = []
         self.categories=None
+        self.dst_res = []
 
     def _gen_id(self, category_id):
         cate_name = self.categories.loc[self.categories['id'] == category_id, 'name'].values[0]
@@ -79,6 +81,14 @@ class CVATCOCO2YOLO:
             }
             with open(save_at / 'classes.yaml', 'w') as f:
                 yaml.dump(yml, f, sort_keys=False)
+            
+            self.dst_res.append(save_at)
 
     def bounding_boxes(self, src, dst, classes_select:List[int]=None):
         self._cvat_reader(src, dst, self.BOUNDING_BOXES_OUTNAME, classes_select, labels_format="xywh")
+        return self
+    
+    def auto_split(self):
+        for src in tqdm(self.dst_res, desc="Splitting datasets"):
+            dst = Path(f'split/{src.stem}')
+            auto_split(src, dst)
