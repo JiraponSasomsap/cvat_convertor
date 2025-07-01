@@ -10,6 +10,7 @@ from ..utils import auto_split
 
 class CVATCOCO2YOLO:
     BOUNDING_BOXES_OUTNAME = 'yolo-bbox'
+    SEGMENTATION_OUTNAME = 'yolo-segmentation'
     
     def __init__(self):
         self._id = []
@@ -60,6 +61,9 @@ class CVATCOCO2YOLO:
                                 (box[0]+(box[1]/2)) / [width, height],
                                 box[1] / [width, height]
                             ]) # minx, miny, w, h -> xywh
+                        elif labels_format == "xy":
+                            box = box / [width, height]
+                            box = box.reshape(-1)
                         else:
                             raise ValueError(f"Unsupported labels_format: '{labels_format}'")
                         
@@ -86,6 +90,10 @@ class CVATCOCO2YOLO:
 
     def bounding_boxes(self, src, dst, classes_select:List[int]=None):
         self._cvat_reader(src, dst, self.BOUNDING_BOXES_OUTNAME, classes_select, labels_format="xywh")
+        return self
+    
+    def segment(self, src, dst, classes_select:List[int]=None):
+        self._cvat_reader(src, dst, self.SEGMENTATION_OUTNAME, classes_select, labels_format="xy")
         return self
     
     def auto_split(self, train=0.7, val=0.2, test=0.1):
