@@ -58,3 +58,22 @@ def auto_split(src, dst=None, train=0.8, val=0.2, test=0.0):
 
             if label_path.exists():
                 shutil.copy(label_path, lbl_dst / label_path.name)
+
+def make_path(dst, name):
+    """
+    Combines dst and name into a Path object.
+    
+    Parameters:
+        dst (str | Path): The base directory.
+        name (str): The filename or subpath to append.
+    
+    Returns:
+        Path: Combined Path object.
+    
+    Raises:
+        TypeError: If dst is not a str or Path.
+    """
+    if isinstance(dst, (str, Path)):
+        return Path(dst) / str(name)
+    else:
+        raise TypeError(f"Expected str or Path, got {type(dst).__name__}")
