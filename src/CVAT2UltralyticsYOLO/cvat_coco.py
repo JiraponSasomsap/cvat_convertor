@@ -12,7 +12,8 @@ class CVATCOCO2YOLO:
     BOUNDING_BOXES_OUTNAME = 'yolo-bbox'
     SEGMENTATION_OUTNAME = 'yolo-segmentation'
     
-    def __init__(self, id_manager_func=None):
+    def __init__(self, dst:Path|str, project:str, id_manager_func=None):
+        self.dst = Path(dst) / project if isinstance(dst, str) else dst / project
         self._id = []
         self._cls = []
         self.categories=None
@@ -30,7 +31,7 @@ class CVATCOCO2YOLO:
             self._cls.append(cate_name)
         return self._id.index(category_id)
 
-    def coco_reader(self, src, dst, outname, classes_select: List[int], labels_format:str="xywh"):
+    def _coco_reader(self, src, dst, outname, classes_select: List[int], labels_format:str="xywh"):
         if isinstance(src, str): src = Path(src)
         if isinstance(dst, str): dst = Path(dst)
 
@@ -93,20 +94,20 @@ class CVATCOCO2YOLO:
             
             self.dst_res.append(save_at)
 
-    def bounding_boxes(self, src, dst, name, classes_select:List[int]=None):
-        save_as = make_path(dst, name)
-        self.coco_reader(src, save_as, self.BOUNDING_BOXES_OUTNAME, classes_select, labels_format="xywh")
+    def bounding_boxes(self, src, name, classes_select:List[int]=None):
+        save_as = make_path(self.dst, name)
+        self._coco_reader(src, save_as, self.BOUNDING_BOXES_OUTNAME, classes_select, labels_format="xywh")
         print(f'Bounding Boxes Save : {save_as}')
         return self
     
-    def segment(self, src, dst, name, classes_select:List[int]=None):
-        save_as = make_path(dst, name)
-        self.coco_reader(src, save_as, self.SEGMENTATION_OUTNAME, classes_select, labels_format="xy")
+    def segment(self, src, name, classes_select:List[int]=None):
+        save_as = make_path(self.dst, name)
+        self._coco_reader(src, save_as, self.SEGMENTATION_OUTNAME, classes_select, labels_format="xy")
         print(f'Segment Save : {save_as}')
         return self
     
-    def auto_split(self, dst:Path, name:str, train=0.7, val=0.2, test=0.1):
-        save_as = make_path(dst, name)
+    def auto_split(self, name:str, train=0.7, val=0.2, test=0.1):
+        save_as = make_path(self.dst, name)
         paths = []
         for src in tqdm(self.dst_res, desc="Splitting datasets"):
             _dst = save_as / src.stem
